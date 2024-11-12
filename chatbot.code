@@ -1,0 +1,73 @@
+import streamlit as st
+import openai  # Assuming we use OpenAI for RAG and conversational AI
+import wikipediaapi
+import requests
+
+# Define API keys if needed (use your actual keys)
+OPENAI_API_KEY = "your_openai_api_key"
+
+# Configure OpenAI
+openai.api_key = OPENAI_API_KEY
+
+# Initialize Wikipedia API
+wiki = wikipediaapi.Wikipedia('en')
+
+
+# Function for Wikipedia Data Retrieval
+def get_wikipedia_summary(query):
+    page = wiki.page(query)
+    if page.exists():
+        return page.summary
+    else:
+        return "Wikipedia does not have an entry on this topic."
+
+
+# Function for Real-Time Data Retrieval (Web Search Simulation)
+def get_real_time_data(query):
+    # Placeholder function to simulate real-time data retrieval
+    # In production, you may want to use a news API or scraping solution
+    return f"Simulated real-time data for query: {query}"
+
+
+# Function for Personalized Career Insights (using RAG concept)
+def get_personalized_career_advice(user_cv, query):
+    # RAG setup using OpenAI's GPT model, retrieve info from a hypothetical CV database
+    response = openai.Completion.create(
+        engine="text-davinci-003",
+        prompt=f"Based on the CV: {user_cv}, provide career advice for: {query}",
+        max_tokens=100
+    )
+    return response.choices[0].text.strip()
+
+
+# Streamlit UI
+st.title("Agentic Chatbot with Multi-Tool Access")
+st.write("A versatile chatbot for real-time information, personalized career insights, and factual data.")
+
+# User Input
+query = st.text_input("Ask a question:")
+option = st.selectbox(
+    "Choose the type of query:",
+    ("Real-Time Information", "Personalized Career Insights", "Reliable Knowledge and Facts")
+)
+
+# Example CV for testing purposes
+sample_cv = "Experienced data scientist with expertise in machine learning, Python, and SQL."
+
+# Handle Query
+if st.button("Get Answer"):
+    if option == "Real-Time Information":
+        # Simulate real-time information retrieval
+        answer = get_real_time_data(query)
+    elif option == "Personalized Career Insights":
+        # Provide career advice based on user CV and query
+        answer = get_personalized_career_advice(sample_cv, query)
+    elif option == "Reliable Knowledge and Facts":
+        # Retrieve summary from Wikipedia
+        answer = get_wikipedia_summary(query)
+    else:
+        answer = "Invalid option selected."
+
+    # Display Answer
+    st.write("Answer:")
+    st.write(answer)
